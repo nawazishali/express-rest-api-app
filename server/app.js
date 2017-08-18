@@ -8,6 +8,8 @@ const jwt = require('jsonwebtoken');
 const config = require('./config');
 const User = require('./models/user');
 const port = process.env.PORT || 8080;
+const userRoutes = require('./routes/userRoutes');
+const authRoute = require('./routes/authRoute');
 
 //Configurations
 
@@ -21,8 +23,8 @@ app.get('/', (req, res) => {
     res.send('Hello! Welcome to the API');
 });
 
-const userRoutes = require('./routes/userRoutes');
 app.use('/', userRoutes);
+app.use('/', authRoute);
 
 app.listen(port);
 

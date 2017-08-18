@@ -53,24 +53,6 @@ userRoutes.put('/users/:id', (req, res) => {
     });
 });
 
-userRoutes.put('/users/:id', (req, res) => {
-    // create a user
-    var updatedUser = {
-        username: req.body.username,
-        password: req.body.password,
-    };
-
-    User.findOneAndUpdate({ _id: req.params.id }, updatedUser, (err, user) => {
-        if (err) {
-            console.log(err);
-        }
-        else {
-            console.log('User updated successfully');
-            res.json({ success: true });
-        }
-    });
-});
-
 userRoutes.delete('/users/:id', (req, res) => {
     User.findByIdAndRemove({ _id: req.params.id }, (err, user) => {
         if (err) {
