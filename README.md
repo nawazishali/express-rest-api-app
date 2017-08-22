@@ -1,14 +1,11 @@
 # express-rest-api-app
 
-This project was generated with the [Angular Full-Stack Generator](https://github.com/DaftMonk/generator-angular-fullstack) version 4.2.2.
-
 ## Getting Started
 
 ### Prerequisites
 
 - [Git](https://git-scm.com/)
 - [Node.js and npm](nodejs.org) Node >= 4.x.x, npm >= 2.x.x
-- [Gulp](http://gulpjs.com/) (`npm install --global gulp`)
 - [MongoDB](https://www.mongodb.org/) - Keep a running daemon with `mongod`
 
 ### Developing
@@ -21,4 +18,5 @@ This project was generated with the [Angular Full-Stack Generator](https://githu
 
 ## Testing
 
-Running `npm test` will run the unit tests with karma.
+Run `npm install -g jasmine-node` to install Jasmine Node globally on your machine.
+Running `npm test` will run the unit tests with Frisby.js & Jasmine.
