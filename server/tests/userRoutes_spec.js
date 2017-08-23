@@ -2,7 +2,7 @@ const frisby = require('frisby');
 const Joi = frisby.Joi; // Frisby exposes Joi for convenience
 let firstUser;
 let newUser = {
-    username: "nawazish",
+    userName: "nawazish",
     password: "helloworld",
 }
 let createdUser;
@@ -23,7 +23,7 @@ describe('Test cases for user routes', () => {
                 _id: Joi.string(),
                 updatedAt: Joi.string(),
                 createdAt: Joi.string(),
-                username: Joi.string(),
+                userName: Joi.string(),
                 password: Joi.string()
             }).done(done);
     });
@@ -36,7 +36,7 @@ describe('Test cases for user routes', () => {
         frisby.post('http://localhost:8080/users/', newUser, { json: true })
             .then((json) => {
                 createdUser = json._body;
-                expect(json._body.username).toBe(newUser.username);
+                expect(json._body.userName).toBe(newUser.userName);
             })
             .done(done);
     });
@@ -54,7 +54,7 @@ describe('Test cases for user routes', () => {
             .done(done);
     });
     it('Should be able to edit a user in the users/:id route using PUT method', (done) => {
-        frisby.put('http://localhost:8080/users/' + createdUser._id, { username: "Nawazish Ali" }, { json: true })
+        frisby.put('http://localhost:8080/users/' + createdUser._id, { userName: "Nawazish Ali" }, { json: true })
             .expect('json', { success: true })
             .done(done);
     });

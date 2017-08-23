@@ -6,7 +6,7 @@ authRoute.post('/auth', (req, res) => {
 
     // find the user
     User.findOne({
-        username: req.body.username
+        userName: req.body.userName
     }, (err, user) => {
 
         if (err) throw err;

@@ -18,5 +18,6 @@
 
 ## Testing
 
-Run `npm install -g jasmine-node` to install Jasmine Node globally on your machine.
-Running `npm test` will run the unit tests with Frisby.js & Jasmine.
+1. Run `npm install -g jasmine-node` to install Jasmine Node globally on your machine.
+
+2. Running `npm test` will run the unit tests with Frisby.js & Jasmine.

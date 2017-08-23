@@ -10,6 +10,8 @@ const User = require('./models/user');
 const port = process.env.PORT || 8080;
 const userRoutes = require('./routes/userRoutes');
 const authRoute = require('./routes/authRoute');
+const verifyToken = require('./middleware/verifyToken');
+const projectRoutes = require('./routes/projectRoutes');
 
 //Configurations
 
@@ -25,6 +27,8 @@ app.get('/', (req, res) => {
 
 app.use('/', userRoutes);
 app.use('/', authRoute);
+app.use('/', verifyToken);
+app.use('/', projectRoutes);
 
 app.listen(port);
 

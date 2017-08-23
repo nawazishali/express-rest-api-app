@@ -4,8 +4,8 @@ const User = require('../models/user');
 userRoutes.post('/users', (req, res) => {
 
     // create a user
-    var newUser = new User({
-        username: req.body.username,
+    let newUser = new User({
+        userName: req.body.userName,
         password: req.body.password,
     });
 
@@ -42,13 +42,13 @@ userRoutes.get('/users/:id', (req, res) => {
 
 userRoutes.put('/users/:id', (req, res) => {
     // create a user
-    var updatedUser = {};
+    let updatedUser = {};
 
-    if (req.body.username) updatedUser.username = req.body.username;
+    if (req.body.userName) updatedUser.userName = req.body.userName;
     if (req.body.password) updatedUser.password = req.body.password;
 
-    if (req.body.username === "" && req.body.password === "") {
-        res.json({ error: "At least a username or a password is required to update any user" });
+    if (req.body.userName === "" && req.body.password === "") {
+        res.json({ error: "At least a userName or a password is required to update any user" });
     } else {
         User.findOneAndUpdate({ _id: req.params.id }, updatedUser)
             .then((user) => {
