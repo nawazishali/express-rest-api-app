@@ -12,6 +12,8 @@ const userRoutes = require('./routes/userRoutes');
 const authRoute = require('./routes/authRoute');
 const verifyToken = require('./middleware/verifyToken');
 const projectRoutes = require('./routes/projectRoutes');
+const issueRoutes = require('./routes/issueRoutes');
+const commentRoutes = require('./routes/commentRoutes');
 
 //Configurations
 
@@ -29,6 +31,8 @@ app.use('/', userRoutes);
 app.use('/', authRoute);
 app.use('/', verifyToken);
 app.use('/', projectRoutes);
+app.use('/', issueRoutes);
+app.use('/', commentRoutes);
 
 app.listen(port);
 

@@ -2,30 +2,15 @@ const projectRoutes = require('express').Router();
 const User = require('../models/user');
 const Project = require('../models/project');
 
-toUsersArrayFromIdArray = (arr) => {
-    let initialLength = arr.length;
-    let firstId = arr[0];
-    let usersArr = [];
+let getAllUsers = () => {
     return new Promise((resolve, reject) => {
-        let findUser = (id) => {
-            userObj = {};
-            User.findOne({ _id: id })
-                .then((user) => {
-                    userObj.userName = user.userName;
-                    userObj.userId = user._id;
-                    arr.splice(0, 1);
-                    if (arr.length > -1) {
-                        findUser(arr);
-                    }
-                    if (usersArr.length === initialLength) {
-                        resolve(usersArr);
-                    }
-                })
-                .catch((err) => {
-                    res.json({ error: `'${id}' is not a valid ID, Kindly remove it from the users array or add a valid one. ` });
-                    reject(true);
-                })
-        }
+        User.find({})
+            .then((users) => {
+                resolve(users);
+            })
+            .catch((err) => {
+                reject(true);
+            })
     });
 }
 
@@ -90,22 +75,63 @@ projectRoutes.get('/projects/:id', (req, res) => {
 });
 
 projectRoutes.put('/projects/:id', (req, res) => {
-    let updatedProject = {};
+    getAllUsers()
+        .then((users) => {
+            let updatedProject = {};
 
-    if (req.body.title) updatedProject.title = req.body.title;
+            let foundOwner = users.filter((user) => user._id.toString() === req.body.owner);
+            if (req.body.title) updatedProject.title = req.body.title;
 
-    if (req.body.title === "") {
-        res.json({ error: "title is required to update any project" });
-    } else {
-        Project.findOneAndUpdate({ _id: req.params.id }, updatedProject)
-            .then((user) => {
-                console.log('Project updated successfully');
-                res.json({ success: true });
-            })
-            .catch((err) => {
-                console.log(err);
-            })
-    }
+            if (req.body.owner && foundOwner.length === 0) res.json(
+                { error: `${req.body.owner} is not a valid user ID, Please provide a valid ID.` }
+            );
+
+            if (foundOwner.length > 0) updatedProject.owner = { ownerId: foundOwner[0]._id, ownerName: foundOwner[0].userName };
+
+            if (req.body.users && req.body.users.length > 0) {
+                req.body.users.forEach((reqUser, index) => {
+                    let found = users.some((fetchedUser) => fetchedUser._id.toString() === reqUser);
+                    if (!found) {
+                        res.json({
+                            error: `ID at index:${index} is not a valid user ID, Please remove it or replace with a valid ID`
+                        });
+                    }
+                });
+
+                let usersArrOfObj = [];
+                req.body.users.forEach((reqUser) => {
+                    let userObj = {};
+                    users.forEach((fetchedUser) => {
+                        if (reqUser === fetchedUser._id.toString()) {
+                            userObj.userId = fetchedUser._id;
+                            userObj.userName = fetchedUser.userName;
+                            usersArrOfObj.push(userObj);
+                        }
+                    });
+                });
+
+                updatedProject.users = usersArrOfObj;
+            }
+
+
+
+            if (req.body.title === "") {
+                res.json({ error: "title is required to update any project" });
+            } else {
+                Project.findOneAndUpdate({ _id: req.params.id }, updatedProject)
+                    .then((user) => {
+                        console.log('Project updated successfully');
+                        res.json({ success: true });
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    })
+            }
+        })
+        .catch((err) => {
+            res.json({ error: err.message });
+        })
+
 })
 
 projectRoutes.delete('/project/:id', (req, res) => {

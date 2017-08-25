@@ -1,5 +1,6 @@
 const userRoutes = require('express').Router();
 const User = require('../models/user');
+const Project = require('../models/project');
 
 userRoutes.post('/users', (req, res) => {
 
@@ -65,8 +66,14 @@ userRoutes.put('/users/:id', (req, res) => {
 userRoutes.delete('/users/:id', (req, res) => {
     User.findByIdAndRemove({ _id: req.params.id })
         .then((user) => {
-            console.log('User deleted successfully');
-            res.json({ success: true });
+            Project.findOneAndUpdate({ "users.userId": user._id }, { $pull: { users: { userId: user._id } } })
+                .then((project) => {
+                    res.send({ success: true });
+                }).catch((err) => {
+                    console.log(err.message);
+                });
+            //console.log('User deleted successfully');
+            //res.json({ success: true });
         })
         .catch((err) => {
             console.log(err);
