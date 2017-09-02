@@ -1,6 +1,8 @@
 const userRoutes = require('express').Router();
 const User = require('../models/user');
 const Project = require('../models/project');
+const Issue = require('../models/issue');
+const Comment = require('../models/comment');
 
 userRoutes.post('/users', (req, res) => {
 
@@ -18,7 +20,10 @@ userRoutes.post('/users', (req, res) => {
         })
         .catch((err) => {
             console.log(err.message);
-            res.json({ error: 'There was an error with your submitted data, Most probably user already exists' });
+            res.json(
+                {
+                    error: 'There was an error with your submitted data, Most probably user already exists'
+                });
         })
 });
 
@@ -51,13 +56,40 @@ userRoutes.put('/users/:id', (req, res) => {
     if (req.body.userName === "" && req.body.password === "") {
         res.json({ error: "At least a userName or a password is required to update any user" });
     } else {
+        let user;
         User.findOneAndUpdate({ _id: req.params.id }, updatedUser)
-            .then((user) => {
+            .then((returnedUser) => {
+                user = returnedUser;
+                return Project.findOneAndUpdate(
+                    { "users.userId": user._id.toString() },
+                    { users: { userName: user.userName, userId: user._id.toString() } });
+            })
+            .then(() => {
+                return Project.findOneAndUpdate(
+                    { "owner.ownerId": user._id.toString() },
+                    { owner: { ownerName: user.userName, ownerId: user._id.toString() } });
+            })
+            .then(() => {
+                return Issue.findOneAndUpdate(
+                    { "creator.creatorId": user._id.toString() },
+                    { creator: { creatorName: user.userName, creatorId: user._id.toString() } });
+            })
+            .then(() => {
+                return Issue.findOneAndUpdate(
+                    { "assignee.assigneeId": user._id.toString() },
+                    { assignee: { assigneeName: user.userName, assigneeId: user._id.toString() } });
+            })
+            .then(() => {
+                return Comment.findOneAndUpdate(
+                    { "postedBy.posterId": user._id.toString() },
+                    { postedBy: { posterName: user.userName, posterId: user._id.toString() } });
+            })
+            .then(() => {
                 console.log('User updated successfully');
                 res.json({ success: true });
             })
             .catch((err) => {
-                console.log(err);
+                res.json({ error: err.message });
             })
     }
 
@@ -66,17 +98,15 @@ userRoutes.put('/users/:id', (req, res) => {
 userRoutes.delete('/users/:id', (req, res) => {
     User.findByIdAndRemove({ _id: req.params.id })
         .then((user) => {
-            Project.findOneAndUpdate({ "users.userId": user._id }, { $pull: { users: { userId: user._id } } })
-                .then((project) => {
-                    res.send({ success: true });
-                }).catch((err) => {
-                    console.log(err.message);
-                });
-            //console.log('User deleted successfully');
-            //res.json({ success: true });
+            return Project.findOneAndUpdate(
+                { "users.userId": user._id },
+                { $pull: { users: { userId: user._id } } })
+        })
+        .then(() => {
+            res.send({ success: true });
         })
         .catch((err) => {
-            console.log(err);
+            res.json({ error: err.message });
         })
 });
 

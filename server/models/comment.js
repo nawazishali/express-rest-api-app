@@ -4,7 +4,8 @@ const Schema = mongoose.Schema;
 module.exports = mongoose.model('Comment', new Schema({
     content: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     commentedOn: {
         type: Object,

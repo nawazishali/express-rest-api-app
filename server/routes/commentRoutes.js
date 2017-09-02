@@ -65,7 +65,7 @@ commentRoutes.post('/comments', (req, res) => {
                     res.json(savedComment);
                 })
                 .catch((err) => {
-                    res.json({ error: err.message });
+                    res.json({ error: 'There was an error with your submitted data, Most probably comment already exists' });
                 });
         })
         .catch((err) => {
@@ -97,11 +97,55 @@ commentRoutes.get('/comments/:id', (req, res) => {
 });
 
 commentRoutes.put('/comments/:id', (req, res) => {
+    let updatedComment = {};
+    if (!req.body.content || req.body.content === "") {
+        res.json({ error: "content is required to update any issue" });
+    }
+    if (!req.body.commentedOn || req.body.commentedOn === "") {
+        res.json({ error: "commentedOn is required to update any issue" });
+    }
+    if (!req.body.postedBy || req.body.postedBy === "") {
+        res.json({ error: "postedBy is required to update any issue" });
+    }
+    if (req.body.content && req.body.commentedOn && req.body.postedBy) {
+        updatedComment.content = req.body.content;
+    }
+    getUsersAndIssues()
+        .then((obj) => {
+            let commentedOn = obj.issues.filter((issue) => issue._id.toString() === req.body.commentedOn);
+            if (commentedOn.length === 0) {
+                res.json({ error: `${req.body.commentedOn} is not a vald Issue ID, Please provide a valid ID.` });
+            } else {
+                updatedComment.commentedOn = { issueId: req.body.commentedOn, issueTitle: commentedOn.title };
+            }
+
+            let postedBy = obj.users.filter((user) => user._id.toString() === req.body.postedBy);
+            if (postedBy.length === 0) {
+                res.json({ error: `${req.body.postedBy} is not a vald User ID, Please provide a valid ID.` });
+            } else {
+                updatedComment.postedBy = { posterId: req.body.postedBy, posterName: postedBy.title };
+            }
+
+            Comment.findByIdAndUpdate({ _id: req.params.id }, updatedComment)
+                .then(() => {
+                    console.log('Issue updated successfully');
+                    res.json({ success: true });
+                })
+                .catch((err) => {
+                    console.log(err.message);
+                });
+        })
 
 });
 
 commentRoutes.delete('/comments/:id', (req, res) => {
-
+    Comment.findByIdAndRemove({ _id: req.params.id })
+        .then(() => {
+            res.json({ success: true });
+        })
+        .catch((err) => {
+            res.json({ error: err.message });
+        })
 });
 
 module.exports = commentRoutes;
